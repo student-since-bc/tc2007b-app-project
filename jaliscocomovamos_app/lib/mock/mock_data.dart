@@ -126,9 +126,9 @@ const List<Map<String, dynamic>> indicadores = [
 
 // Metadatos que se muestran bajo cada gráfica (RF-1.5)
 const Map<String, String> fuenteDatosPublicos = {
-  'fuente': 'Jalisco Cómo Vamos',
-  'periodo': '2025',
-  'actualizado': '01/10/2026',
+  'fuente': 'Placeholder',
+  'periodo': 'XXXX',
+  'actualizado': 'XX/XX/XXXX',
 };
 
 // ---------------------------------------------------------------------------
