@@ -18,7 +18,7 @@ class _MainShellState extends State<MainShell> {
   final List<Widget> _tabs = const [
     DataScreen(),
     Center(child: Text('Mis encuestas')),
-    Center(child: Text('Perfil')),
+    ProfileScreen(),
   ]; // tabs
 
   @override
