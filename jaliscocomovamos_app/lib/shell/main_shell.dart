@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../widgets/app_nav_bar.dart';
+import '../widgets/app_nav_bar.dart';
 
 import '../screens/data_screen.dart';
 import '../screens/survey_screen.dart';
