@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../widgets/app_nav_bar.dart';
-import '../data/data_screen.dart';
+
+import '../screens/data_screen.dart';
+import '../screens/survey_screen.dart';
+import '../screens/profile_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
