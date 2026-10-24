@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Square box/Card with login inputs and button
+
               Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
@@ -82,12 +82,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 32),
               
-              // "Entrar como invitado" button at the bottom
+
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    // Routes.shell points to MainShell, which starts at DataScreen
+
                     Navigator.of(context).pushReplacementNamed(Routes.shell);
                   },
                   child: const Text('Entrar como invitado'),
