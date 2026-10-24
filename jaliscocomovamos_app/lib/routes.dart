@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'shell/main_shell.dart';
 import 'widgets/placeholder_screen.dart';
+
 import 'surveys/survey_intro.dart';
 import 'surveys/survey_question.dart';
 import 'surveys/survey_confirm.dart';
 import 'surveys/survey_done.dart';
+
+import 'screens/login_screen.dart';
 
 class Routes {
   static const shell = '/';
@@ -24,7 +27,7 @@ class Routes {
 
 final Map<String, WidgetBuilder> appRoutes = {
   Routes.shell: (context) => const MainShell(),
-  Routes.loginEmail: (context) => const PlaceholderScreen(title: 'Iniciar sesión'),
+  Routes.loginEmail: (context) => const LoginScreen(),
   Routes.loginCode: (context) => const PlaceholderScreen(title: 'Código de verificación'),
   Routes.loginError: (context) => const PlaceholderScreen(title: 'Correo no válido'),
   Routes.privacy: (context) => const PlaceholderScreen(title: 'Aviso de privacidad'),
