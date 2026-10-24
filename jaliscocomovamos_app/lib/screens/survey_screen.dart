@@ -36,6 +36,6 @@ class SurveyScreen extends StatelessWidget {
               }, // onTap()
             ),
       ], // children
-    );
+    ); // ListView
   } // build()
 } // SurveyScreen
