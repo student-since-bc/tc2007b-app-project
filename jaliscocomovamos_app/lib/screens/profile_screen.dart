@@ -14,13 +14,13 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // User Card Section
+
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    // Default Grey Circle Avatar
+
                     const CircleAvatar(
                       radius: 32,
                       backgroundColor: Colors.grey,
@@ -31,19 +31,19 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    // User Details
+
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Juan Pérez',
+                          'Jane Doe',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: 4),
-                        Text('Rol: Investigador'), // Participant, investigator, or guest
+                        Text('Rol: Participante'),
                       ],
                     ),
                   ],
@@ -52,7 +52,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Settings Button
+
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Ajustes'),
@@ -63,14 +63,14 @@ class ProfileScreen extends StatelessWidget {
             ),
             const Divider(),
 
-            const Spacer(), // Pushes the exit button to the bottom
+            const Spacer(),
 
-            // Exit / Logout Button
+
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  // Navigates back to the login screen
+  
                   Navigator.of(context).pushReplacementNamed(Routes.loginEmail);
                 },
                 icon: const Icon(Icons.logout),
