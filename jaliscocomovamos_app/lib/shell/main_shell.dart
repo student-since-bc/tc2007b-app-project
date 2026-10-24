@@ -4,6 +4,7 @@ import '../widgets/app_nav_bar.dart';
 import '../screens/data_screen.dart';
 import '../screens/survey_screen.dart';
 import '../screens/profile_screen.dart';
+import '../screens/donation_screen.dart';
 
 
 class MainShell extends StatefulWidget {
@@ -19,8 +20,10 @@ class _MainShellState extends State<MainShell> {
   final List<Widget> _tabs = const [
     DataScreen(),
     SurveyScreen(),
+    DonationScreen(),
     ProfileScreen(),
   ]; // tabs
+
 
   @override
   Widget build(BuildContext context) {
