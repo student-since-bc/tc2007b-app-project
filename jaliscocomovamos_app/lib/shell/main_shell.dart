@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_nav_bar.dart';
+import '../widgets/chatbot_button.dart';
 
 import '../screens/data_screen.dart';
 import '../screens/survey_screen.dart';
@@ -35,6 +36,8 @@ class _MainShellState extends State<MainShell> {
         currentIndex: _index,
         onSelected: (i) => setState(() => _index = i),
       ), // AppNavBar
+      // Default endFloat location: bottom-right, just above the nav bar.
+      floatingActionButton: const ChatbotButton(),
     );
   } // build()
 } // MainShellState
