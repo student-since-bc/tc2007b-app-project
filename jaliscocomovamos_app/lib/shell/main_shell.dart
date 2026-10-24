@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../widgets/app_nav_bar.dart';
+import '../widgets/app_nav_bar.dart';
 
 import '../screens/data_screen.dart';
 import '../screens/survey_screen.dart';
 import '../screens/profile_screen.dart';
+
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -17,7 +18,7 @@ class _MainShellState extends State<MainShell> {
 
   final List<Widget> _tabs = const [
     DataScreen(),
-    Center(child: Text('Mis encuestas')),
+    SurveyScreen(),
     ProfileScreen(),
   ]; // tabs
 

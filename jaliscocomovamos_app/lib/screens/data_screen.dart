@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../mock/mock_data.dart';
+import '../mock/mock_data.dart';
 
 class DataScreen extends StatefulWidget {
   const DataScreen({super.key});
