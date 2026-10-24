@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'shell/main_shell.dart';
 import 'widgets/placeholder_screen.dart';
+import 'surveys/survey_intro.dart';
+import 'surveys/survey_question.dart';
+import 'surveys/survey_confirm.dart';
+import 'surveys/survey_done.dart';
 
 class Routes {
   static const shell = '/';
@@ -24,10 +28,10 @@ final Map<String, WidgetBuilder> appRoutes = {
   Routes.loginCode: (context) => const PlaceholderScreen(title: 'Código de verificación'),
   Routes.loginError: (context) => const PlaceholderScreen(title: 'Correo no válido'),
   Routes.privacy: (context) => const PlaceholderScreen(title: 'Aviso de privacidad'),
-  Routes.surveyIntro: (context) => const PlaceholderScreen(title: 'Encuesta'),
-  Routes.surveyQuestion: (context) => const PlaceholderScreen(title: 'Pregunta'),
-  Routes.surveyConfirm: (context) => const PlaceholderScreen(title: 'Confirmar envío'),
-  Routes.surveyDone: (context) => const PlaceholderScreen(title: 'Gracias'),
+  Routes.surveyIntro: (context) => const SurveyIntroScreen(),
+  Routes.surveyQuestion: (context) => const SurveyQuestionScreen(),
+  Routes.surveyConfirm: (context) => const SurveyConfirmScreen(),
+  Routes.surveyDone: (context) => const SurveyDoneScreen(),
   Routes.adminHome: (context) => const PlaceholderScreen(title: 'Panel de administración'),
   Routes.surveyEditor: (context) => const PlaceholderScreen(title: 'Editar encuesta'),
   Routes.assignGroups: (context) => const PlaceholderScreen(title: 'Asignar a grupos'),
