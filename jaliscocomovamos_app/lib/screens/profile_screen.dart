@@ -61,7 +61,9 @@ class ProfileScreen extends StatelessWidget {
                 // TODO: Add settings action
               },
             ),
+            
             const Divider(),
+
 
             const Spacer(),
 

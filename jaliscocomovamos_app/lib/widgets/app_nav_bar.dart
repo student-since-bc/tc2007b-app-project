@@ -28,7 +28,13 @@ class AppNavBar extends StatelessWidget {
           selectedIcon: Icon(Icons.assignment),
           label: 'Mis encuestas',
         ),
-        // Button 2: Perfil
+        // Button 2: Donaciones
+        NavigationDestination(
+          icon: Icon(Icons.volunteer_activism_outlined),
+          selectedIcon: Icon(Icons.volunteer_activism),
+          label: 'Donaciones',
+        ),
+        // Button 3: Perfil
         NavigationDestination(
           icon: Icon(Icons.person_outline),
           selectedIcon: Icon(Icons.person),
