@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../mock/mock_data.dart';
+import '../services/datos_service.dart';
 
 class DataScreen extends StatefulWidget {
   const DataScreen({super.key});
@@ -12,6 +13,17 @@ class _DataScreenState extends State<DataScreen> {
   String _ciudad = 'Todas';
   String _tema = 'Seguridad';
   String _periodo = '2025';
+  late Future<List<Map<String, dynamic>>> _indicadores;
+
+  @override
+  void initState() {
+    super.initState();
+    _indicadores = DatosService.indicadores();
+  } // initState()
+
+  void _recargar() {
+    setState(() => _indicadores = DatosService.indicadores());
+  } // _recargar()
 
   Widget _buildDropdown({
     required String label,
@@ -37,6 +49,36 @@ class _DataScreenState extends State<DataScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _indicadores,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        } // if
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('No se pudieron cargar los datos.'),
+                const SizedBox(height: 8),
+                FilledButton(
+                  onPressed: _recargar,
+                  child: const Text('Reintentar'),
+                ),
+              ], // Column's children
+            ),
+          );
+        } // if
+        return _buildContenido(context, snapshot.data!);
+      }, // builder
+    );
+  } // build()
+
+  Widget _buildContenido(
+    BuildContext context,
+    List<Map<String, dynamic>> indicadores,
+  ) {
     Map<String, dynamic>? indicador;
     for (final i in indicadores) {
       if (i['tema'] == _tema) indicador = i;
@@ -46,7 +88,7 @@ class _DataScreenState extends State<DataScreen> {
     if (indicador != null) {
       for (final d in indicador['datos'] as List) {
         final fila = Map<String, dynamic>.from(d as Map);
-        final okCiudad = _ciudad == 'Todas' || fila['ciudad'] == _ciudad;
+        final okCiudad = _ciudad == 'Todas' || fila['municipio'] == _ciudad;
         final okPeriodo = fila['periodo'] == _periodo;
         if (okCiudad && okPeriodo) filas.add(fila);
       } // for
@@ -125,7 +167,7 @@ class _DataScreenState extends State<DataScreen> {
                   .map(
                     (fila) => DataRow(
                       cells: [
-                        DataCell(Text(fila['ciudad'] as String)),
+                        DataCell(Text(fila['municipio'] as String)),
                         DataCell(Text('${fila['valor']}%')),
                       ], // Cells
                     ),
@@ -137,8 +179,8 @@ class _DataScreenState extends State<DataScreen> {
 
           // Source line
           Text(
-            'Fuente: ${fuenteDatosPublicos['fuente']} · Periodo $_periodo · '
-            'Actualizado ${fuenteDatosPublicos['actualizado']}',
+            'Fuente: ${indicador['fuente'] ?? 'Sin fuente'} · Periodo $_periodo · '
+            'Actualizado ${indicador['actualizado'] ?? 'sin fecha'}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ] else // Not enough answers
@@ -156,5 +198,5 @@ class _DataScreenState extends State<DataScreen> {
           ),
       ], // ListView children
     );
-  } // build()
+  } // _buildContenido()
 } // _DataScreenState
