@@ -49,3 +49,6 @@ app.*.map.json
 
 # Llaves de Supabase
 env.json
+
+# Resultados agregados de la encuesta JCV (aún no públicos); se generan con supabase/scripts/generar_consultas.py
+supabase/03_consultas.sql

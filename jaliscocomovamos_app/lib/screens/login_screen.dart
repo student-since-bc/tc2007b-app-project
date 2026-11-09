@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import '../mock/mock_data.dart'; // Textos.errorDominio
 import '../routes.dart';
+import '../services/auth_service.dart';
 
+// Paso 1 del login: correo @tec.mx + aceptar el aviso de privacidad.
+// Supabase manda un código al correo (paso 2: LoginCodeScreen).
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -10,14 +14,37 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  bool _aceptaAviso = false;
+  bool _enviando = false;
+  String? _error;
 
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
+
+  Future<void> _enviarCodigo() async {
+    final correo = _emailController.text.trim();
+    if (!AuthService.esCorreoTec(correo)) {
+      setState(() => _error = Textos.errorDominio);
+      return;
+    } // if
+
+    setState(() {
+      _enviando = true;
+      _error = null;
+    });
+    try {
+      await AuthService.enviarCodigo(correo);
+      if (!mounted) return;
+      Navigator.of(context).pushNamed(Routes.loginCode, arguments: correo);
+    } catch (e) {
+      setState(() => _error = AuthService.mensajeDeError(e));
+    } finally {
+      if (mounted) setState(() => _enviando = false);
+    } // try / catch
+  } // _enviarCodigo()
 
   @override
   Widget build(BuildContext context) {
@@ -50,38 +77,78 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         textAlign: TextAlign.center,
                       ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Te enviaremos un código a tu correo institucional. '
+                        'No necesitas contraseña.',
+                        textAlign: TextAlign.center,
+                      ),
                       const SizedBox(height: 20),
                       TextField(
                         controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Correo o Usuario',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Contraseña',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.lock),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          // TODO: Implement login logic later
+                        keyboardType: TextInputType.emailAddress,
+                        autocorrect: false,
+                        onSubmitted: (_) {
+                          if (_aceptaAviso && !_enviando) _enviarCodigo();
                         },
-                        child: const Text('Iniciar sesión'),
+                        decoration: InputDecoration(
+                          labelText: 'Correo institucional',
+                          hintText: 'a01234567@tec.mx',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.email_outlined),
+                          errorText: _error,
+                          errorMaxLines: 3,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Privacy notice (must be accepted to continue)
+                      CheckboxListTile(
+                        value: _aceptaAviso,
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        onChanged: (v) => setState(() => _aceptaAviso = v ?? false),
+                        title: const Text('He leído y acepto el aviso de privacidad'),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: () => Navigator.of(context).pushNamed(Routes.privacy),
+                          icon: const Icon(Icons.privacy_tip_outlined),
+                          label: const Text('Leer aviso de privacidad'),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: _aceptaAviso && !_enviando ? _enviarCodigo : null,
+                        child: _enviando
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text('Enviar código'),
+                      ),
+                      // Para usar un código que ya llegó (p. ej. si pedir otro falla)
+                      TextButton(
+                        onPressed: _enviando
+                            ? null
+                            : () {
+                                final correo = _emailController.text.trim();
+                                if (!AuthService.esCorreoTec(correo)) {
+                                  setState(() => _error = Textos.errorDominio);
+                                  return;
+                                } // if
+                                Navigator.of(context).pushNamed(Routes.loginCode, arguments: correo);
+                              },
+                        child: const Text('Ya tengo un código'),
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 32),
-              
+
 
               SizedBox(
                 width: double.infinity,

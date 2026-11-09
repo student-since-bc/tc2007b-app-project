@@ -49,7 +49,7 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
     ),
   ];
 
-  static const _sugerencias = ['Encuestas', 'Datos', 'Donaciones', 'Perfil'];
+  static const _sugerencias = ['Encuestas', 'Consultas', 'Jalisco Cómo Vamos', 'Perfil'];
 
   @override
   void dispose() {
@@ -62,18 +62,18 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
   String _responder(String pregunta) {
     final p = pregunta.toLowerCase();
     if (p.contains('encuesta')) {
-      return 'En "Mis encuestas" puedes ver y contestar las encuestas asignadas a tu grupo.';
+      return 'En "Encuestas" puedes contestar la mini encuesta para estudiantes del Tec.';
     }
-    if (p.contains('dato')) {
-      return 'En "Datos" encontrarás indicadores sobre la calidad de vida en Jalisco.';
+    if (p.contains('consulta') || p.contains('dato')) {
+      return 'En "Consultas" encontrarás los resultados de la Encuesta de Bienestar de Jóvenes AMG 2026.';
     }
-    if (p.contains('don')) {
-      return 'En "Donaciones" puedes apoyar el trabajo de Jalisco Cómo Vamos.';
+    if (p.contains('don') || p.contains('jalisco') || p.contains('jcv')) {
+      return 'En "JCV" conoces a Jalisco Cómo Vamos y puedes apoyar su trabajo con un donativo.';
     }
     if (p.contains('perfil') || p.contains('cuenta')) {
       return 'En "Perfil" puedes consultar tu información y cerrar sesión.';
     }
-    return 'Aún estoy aprendiendo. Prueba preguntando por encuestas, datos, donaciones o tu perfil.';
+    return 'Aún estoy aprendiendo. Prueba preguntando por encuestas, consultas, Jalisco Cómo Vamos o tu perfil.';
   } // _responder()
 
   void _enviar(String texto) {
