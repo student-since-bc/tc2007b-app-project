@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import '../mock/mock_data.dart'; // Textos.errorDominio
 import '../routes.dart';
 import '../services/auth_service.dart';
 
-// Paso 1 del login: correo @tec.mx + aceptar el aviso de privacidad.
-// Supabase manda un código al correo (paso 2: LoginCodeScreen).
+// Paso 1 del login: capturar el correo institucional y mandar el código OTP.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -13,156 +11,99 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  bool _aceptaAviso = false;
-  bool _enviando = false;
+  final _correoController = TextEditingController();
+  bool _cargando = false;
   String? _error;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _correoController.dispose();
     super.dispose();
   }
 
   Future<void> _enviarCodigo() async {
-    final correo = _emailController.text.trim();
+    final correo = _correoController.text.trim();
+
+    // 1. Validar que sea correo del Tec usando tu AuthService
     if (!AuthService.esCorreoTec(correo)) {
-      setState(() => _error = Textos.errorDominio);
+      setState(() => _error = 'Usa un correo institucional válido (@tec.mx).');
       return;
-    } // if
+    }
 
     setState(() {
-      _enviando = true;
+      _cargando = true;
       _error = null;
     });
+
     try {
+      // 2. Enviar el código OTP a través de Supabase
       await AuthService.enviarCodigo(correo);
       if (!mounted) return;
-      Navigator.of(context).pushNamed(Routes.loginCode, arguments: correo);
+
+      // 3. Navegar a LoginCodeScreen enviando el correo como argumento
+      Navigator.of(context).pushNamed(
+        Routes.loginCode,
+        arguments: correo,
+      );
     } catch (e) {
+      // 4. Mostrar el error traducido de tu AuthService
       setState(() => _error = AuthService.mensajeDeError(e));
     } finally {
-      if (mounted) setState(() => _enviando = false);
-    } // try / catch
-  } // _enviarCodigo()
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Iniciar Sesión'),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text(
-                        'Iniciar Sesión',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Te enviaremos un código a tu correo institucional. '
-                        'No necesitas contraseña.',
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      TextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        autocorrect: false,
-                        onSubmitted: (_) {
-                          if (_aceptaAviso && !_enviando) _enviarCodigo();
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Correo institucional',
-                          hintText: 'a01234567@tec.mx',
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          errorText: _error,
-                          errorMaxLines: 3,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Privacy notice (must be accepted to continue)
-                      CheckboxListTile(
-                        value: _aceptaAviso,
-                        contentPadding: EdgeInsets.zero,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        onChanged: (v) => setState(() => _aceptaAviso = v ?? false),
-                        title: const Text('He leído y acepto el aviso de privacidad'),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton.icon(
-                          onPressed: () => Navigator.of(context).pushNamed(Routes.privacy),
-                          icon: const Icon(Icons.privacy_tip_outlined),
-                          label: const Text('Leer aviso de privacidad'),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: _aceptaAviso && !_enviando ? _enviarCodigo : null,
-                        child: _enviando
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text('Enviar código'),
-                      ),
-                      // Para usar un código que ya llegó (p. ej. si pedir otro falla)
-                      TextButton(
-                        onPressed: _enviando
-                            ? null
-                            : () {
-                                final correo = _emailController.text.trim();
-                                if (!AuthService.esCorreoTec(correo)) {
-                                  setState(() => _error = Textos.errorDominio);
-                                  return;
-                                } // if
-                                Navigator.of(context).pushNamed(Routes.loginCode, arguments: correo);
-                              },
-                        child: const Text('Ya tengo un código'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-
-                    Navigator.of(context).pushReplacementNamed(Routes.shell);
-                  },
-                  child: const Text('Entrar como invitado'),
-                ),
-              ),
-            ],
+      appBar: AppBar(title: const Text('Iniciar sesión')),
+      body: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          Text(
+            'Ingresa tu correo institucional',
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
-        ),
+          const SizedBox(height: 8),
+          const Text(
+            'Te enviaremos un código de verificación para confirmar tu identidad.',
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _correoController,
+            keyboardType: TextInputType.emailAddress,
+            autofocus: true,
+            onChanged: (_) {
+              if (_error != null) setState(() => _error = null);
+            },
+            onSubmitted: (_) {
+              if (!_cargando) _enviarCodigo();
+            },
+            decoration: InputDecoration(
+              labelText: 'Correo (@tec.mx)',
+              hintText: 'a01234567@tec.mx',
+              border: const OutlineInputBorder(),
+              errorText: _error,
+              errorMaxLines: 3,
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: _cargando ? null : _enviarCodigo,
+            child: _cargando
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Enviar código'),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => Navigator.of(context).pushNamed(Routes.privacy),
+            child: const Text('Aviso de privacidad'),
+          ),
+        ],
       ),
     );
   }
