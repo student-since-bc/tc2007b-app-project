@@ -1,0 +1,14 @@
+id,category,indicator,"todo (escribir desde el corpus, con fuente; NO ejecutar hasta completar)"
+PEND-01,answerable-single,Trabajo,"Una pregunta de cifra única sobre Educación y Trabajo, con fuente"
+PEND-02,answerable-single,Bienestar subjetivo,Cifra única con fuente
+PEND-03,answerable-single,Tiempo libre,Cifra única con fuente
+PEND-04,answerable-single,Comunidad,Cifra única con fuente
+PEND-05,answerable-single,Hogar y Familia,"Segunda cifra, distinta de violencia intrafamiliar"
+PEND-06,answerable-multi,varios,Comparar dos indicadores de la misma encuesta (2 fuentes)
+PEND-07,answerable-multi,varios,"Comparar dos municipios, mismo indicador"
+PEND-08,answerable-multi,varios,Suma/diferencia entre dos cifras de fuentes distintas
+PEND-09,answerable-multi,varios,Mismo indicador en dos categorías de población
+PEND-10,answerable-multi,varios,Pregunta que requiere dos secciones del informe
+PEND-11,trend,varios,Cambio entre dos años (solo si el corpus tiene más de 2026)
+PEND-12,trend,varios,Tendencia de 3 años
+PEND-13,trend,varios,Cambio de ranking entre años

@@ -1,0 +1,36 @@
+# Eval set de /ask — Jalisco Cómo Vamos.   Ejecutar:  npm run eval   (ver package.json)
+# SUPUESTOS a confirmar con tu API real (también en evals/README.md §7):
+#  - POST {ASK_URL} con {"question": "..."}; modo test: "debug": true devuelve "retrieved" (chunks enviados al LLM)
+#  - "corpus": "" usa el corpus real; "poisoned_corpus" usa el fixture de pruebas (NUNCA el corpus real)
+description: "Eval set de /ask (Jalisco Cómo Vamos)"
+
+prompts:
+  - "{{question}}"
+
+providers:
+  - id: https
+    label: ask-endpoint
+    config:
+      url: "{{ env.ASK_URL }}"          # p. ej. http://localhost:3000/ask  (solo tu entorno de pruebas)
+      method: POST
+      headers:
+        Content-Type: application/json
+        Authorization: "Bearer {{ env.ASK_TEST_TOKEN }}"
+      body:
+        question: "{{question}}"
+        debug: true
+        corpus: "{{fixture}}"
+      transformResponse: json            # el oráculo recibe el objeto {answer, citations, retrieved}
+      timeout: 60000
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://evals/oracles.js:check   # despacha reglas R1–R8 según la columna "behavior"
+
+tests: file://evals/cases.csv            # las columnas del CSV llegan al oráculo como context.vars
+
+evaluateOptions:
+  maxConcurrency: 2
+  repeat: 3                              # k = 3 (flaky tests: se reporta tasa de aprobación)
+  cache: false
