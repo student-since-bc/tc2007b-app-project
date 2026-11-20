@@ -5,7 +5,7 @@ import '../widgets/chatbot_button.dart';
 import '../screens/data_screen.dart';
 import '../screens/survey_screen.dart';
 import '../screens/profile_screen.dart';
-import '../screens/donation_screen.dart';
+import '../screens/jcv_screen.dart';
 
 
 class MainShell extends StatefulWidget {
@@ -18,19 +18,18 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
 
-  final List<Widget> _tabs = const [
-    DataScreen(),
-    SurveyScreen(),
-    DonationScreen(),
-    ProfileScreen(),
-  ]; // tabs
-
-
   @override
   Widget build(BuildContext context) {
+    final tabs = [
+      const DataScreen(),
+      SurveyScreen(onVerResultados: () => setState(() => _index = 0)),
+      const JcvScreen(),
+      const ProfileScreen(),
+    ]; // tabs
+
     return Scaffold(
       body: SafeArea(
-        child: IndexedStack(index: _index, children: _tabs),
+        child: IndexedStack(index: _index, children: tabs),
       ),
       bottomNavigationBar: AppNavBar(
         currentIndex: _index,

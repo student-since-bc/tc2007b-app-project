@@ -33,7 +33,7 @@ class SurveyDoneScreen extends StatelessWidget {
                 // Button back to the list
                 FilledButton(
                   onPressed: () => Navigator.popUntil(context, (route) => route.isFirst),
-                  child: const Text('Volver a mis encuestas'),
+                  child: const Text('Volver a encuestas'),
                 ),
               ], // children
             ),

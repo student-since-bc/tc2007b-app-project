@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../mock/mock_data.dart';
+import '../mock/mock_data.dart'; // TipoPregunta
 import '../routes.dart';
+import '../services/encuestas_service.dart';
 
 class SurveyQuestionScreen extends StatefulWidget {
   const SurveyQuestionScreen({super.key});
@@ -10,9 +11,23 @@ class SurveyQuestionScreen extends StatefulWidget {
 } // SurveyQuestionScreen
 
 class _SurveyQuestionScreenState extends State<SurveyQuestionScreen> {
-  String? _opcion;
-  final Set<String> _multi = {};
-  double? _escala;
+  late SesionEncuesta _sesion;
+  late int _index;
+  late Map<String, dynamic> _pregunta;
+
+  // Valores elegidos en esta pregunta (se guardan en la sesión al cambiar,
+  // así no se pierden al regresar a una pregunta anterior)
+  List<String> get _valores => _sesion.respuestas[_pregunta['id']] ?? const [];
+  set _valores(List<String> v) => _sesion.respuestas[_pregunta['id'] as String] = v;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    _sesion = args['sesion'] as SesionEncuesta;
+    _index = args['index'] as int;
+    _pregunta = _sesion.preguntas[_index];
+  } // didChangeDependencies()
 
   Widget _buildSingleChoice(List<String> opciones) {
     return Column(
@@ -20,19 +35,21 @@ class _SurveyQuestionScreenState extends State<SurveyQuestionScreen> {
         for (final o in opciones)
           ListTile(
             leading: Icon(
-              _opcion == o ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              _valores.contains(o) ? Icons.radio_button_checked : Icons.radio_button_unchecked,
             ),
             // Option's text
             title: Text(o),
-            onTap: () => setState(() => _opcion = o),
+            onTap: () => setState(() => _valores = [o]),
           ),
       ], // children
     );
   } // _buildSingleChoice()
 
   Widget _buildInput(String tipo, Map<String, dynamic> p) {
+    final opciones = List<String>.from(p['opciones'] as List? ?? const []);
+
     if (tipo == TipoPregunta.opcionUnica) {
-      return _buildSingleChoice((p['opciones'] as List).cast<String>());
+      return _buildSingleChoice(opciones);
     } // opción única
 
     if (tipo == TipoPregunta.siNo) {
@@ -41,21 +58,24 @@ class _SurveyQuestionScreenState extends State<SurveyQuestionScreen> {
     } // sí / no
 
     if (tipo == TipoPregunta.opcionMultiple) {
+      final max = (p['max'] as num?)?.toInt() ?? opciones.length;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Hint telling how many options can be picked
-          Text('Elige entre ${p['min']} y ${p['max']} opciones'),
-          for (final o in (p['opciones'] as List).cast<String>())
+          Text('Elige hasta $max opciones'),
+          for (final o in opciones)
             CheckboxListTile(
-              value: _multi.contains(o),
+              value: _valores.contains(o),
               title: Text(o),
               onChanged: (v) => setState(() {
-                if (v == true) {
-                  _multi.add(o);
+                final elegidas = [..._valores];
+                if (v == true && elegidas.length < max) {
+                  elegidas.add(o);
                 } else {
-                  _multi.remove(o);
+                  elegidas.remove(o);
                 } // if / else
+                _valores = elegidas;
               }), // onChanged()
             ),
         ], // children
@@ -63,87 +83,97 @@ class _SurveyQuestionScreenState extends State<SurveyQuestionScreen> {
     } // opción múltiple
 
     if (tipo == TipoPregunta.escala) {
-      final double min = (p['min'] as int).toDouble();
-      final double max = (p['max'] as int).toDouble();
-      final double valor = _escala ?? min;
+      final double min = (p['min'] as num).toDouble();
+      final double max = (p['max'] as num).toDouble();
+      final actual = _valores.isEmpty ? null : double.parse(_valores.first);
       return Column(
         children: [
           Slider(
-            value: valor,
+            value: actual ?? min,
             min: min,
             max: max,
             divisions: (max - min).toInt(),
-            label: valor.toInt().toString(),
-            onChanged: (v) => setState(() => _escala = v),
+            label: (actual ?? min).toInt().toString(),
+            onChanged: (v) => setState(() => _valores = [v.toInt().toString()]),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(p['etiquetaMin'] as String),
-              Text(p['etiquetaMax'] as String),
+              Text(p['etiqueta_min'] as String? ?? ''),
+              Text(p['etiqueta_max'] as String? ?? ''),
             ], // children
           ),
-          Text('Valor: ${valor.toInt()}'),
+          Text(actual == null
+              ? 'Mueve el control para responder'
+              : 'Valor: ${actual.toInt()}'),
         ], // children
       );
     } // escala
 
-    return TextField(
+    return TextFormField(
+      initialValue: _valores.isEmpty ? '' : _valores.first,
       keyboardType: TextInputType.number,
+      onChanged: (v) => setState(() => _valores = v.trim().isEmpty ? [] : [v.trim()]),
       decoration: InputDecoration(
         border: const OutlineInputBorder(),
         labelText: 'Tu respuesta',
-        suffixText: p['unidad'] as String,
-        helperText: 'Entre ${p['min']} y ${p['max']}',
+        suffixText: p['unidad'] as String?,
+        helperText: p['min'] == null ? null : 'Entre ${p['min']} y ${p['max']}',
       ),
     );
   } // _buildInput()
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final String id = args['id'] as String;
-    final int index = args['index'] as int;
-    final encuesta = encuestaPorId(id)!;
-    final ids = encuesta['preguntas'] as List;
-    final pregunta = preguntaPorId(ids[index] as String)!;
-    final bool esUltima = index == ids.length - 1;
-    final bool obligatoria = pregunta['obligatoria'] as bool;
+    final total = _sesion.preguntas.length;
+    final bool esUltima = _index == total - 1;
+    final bool obligatoria = _pregunta['obligatoria'] as bool;
+    final bool puedeSeguir = !obligatoria || _valores.isNotEmpty;
 
     return Scaffold(
       // Top bar with the survey title
-      appBar: AppBar(title: Text(encuesta['titulo'] as String)),
+      appBar: AppBar(title: Text(_sesion.encuesta['titulo'] as String)),
       // Scrollable content
       body: ListView(
         // Space around the content
         padding: const EdgeInsets.all(16),
         children: [
-          LinearProgressIndicator(value: (index + 1) / ids.length),
+          LinearProgressIndicator(value: (_index + 1) / total),
           const SizedBox(height: 8),
-          Text('Pregunta ${index + 1} de ${ids.length}'),
+          Text('Pregunta ${_index + 1} de $total'),
           const SizedBox(height: 16),
           Text(
-            '${pregunta['texto']}${obligatoria ? ' *' : ''}',
+            '${_pregunta['texto']}${obligatoria ? ' *' : ''}',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 16),
-          _buildInput(pregunta['tipo'] as String, pregunta),
+          _buildInput(_pregunta['tipo'] as String, _pregunta),
           const SizedBox(height: 24),
           // Next / review button
           FilledButton(
-            onPressed: () {
-              if (esUltima) {
-                Navigator.pushNamed(context, Routes.surveyConfirm, arguments: id);
-              } else {
-                Navigator.pushNamed(
-                  context,
-                  Routes.surveyQuestion,
-                  arguments: {'id': id, 'index': index + 1},
-                ); // Navigator
-              } // if / else
-            }, // onPressed()
+            onPressed: !puedeSeguir
+                ? null
+                : () {
+                    if (esUltima) {
+                      Navigator.pushNamed(context, Routes.surveyConfirm, arguments: _sesion);
+                    } else {
+                      Navigator.pushNamed(
+                        context,
+                        Routes.surveyQuestion,
+                        arguments: {'sesion': _sesion, 'index': _index + 1},
+                      ); // Navigator
+                    } // if / else
+                  }, // onPressed()
             child: Text(esUltima ? 'Revisar y enviar' : 'Siguiente'),
           ),
+          if (!puedeSeguir) ...[
+            const SizedBox(height: 8),
+            Text(
+              '* Esta pregunta es obligatoria.',
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ], // children
       ),
     );

@@ -16,23 +16,24 @@ class AppNavBar extends StatelessWidget {
       selectedIndex: currentIndex,
       onDestinationSelected: onSelected,
       destinations: const [
-        // Button 0: Datos
+        // Button 0: Consultas
         NavigationDestination(
           icon: Icon(Icons.bar_chart_outlined),
           selectedIcon: Icon(Icons.bar_chart),
-          label: 'Datos',
+          label: 'Consultas',
         ),
-        // Button 1: Mis encuestas
+        // Button 1: Encuestas
         NavigationDestination(
           icon: Icon(Icons.assignment_outlined),
           selectedIcon: Icon(Icons.assignment),
-          label: 'Mis encuestas',
+          label: 'Encuestas',
         ),
-        // Button 2: Donaciones
+        // Button 2: Jalisco Cómo Vamos (incluye donaciones)
         NavigationDestination(
-          icon: Icon(Icons.volunteer_activism_outlined),
-          selectedIcon: Icon(Icons.volunteer_activism),
-          label: 'Donaciones',
+          icon: Icon(Icons.info_outline),
+          selectedIcon: Icon(Icons.info),
+          label: 'JCV',
+          tooltip: 'Jalisco Cómo Vamos',
         ),
         // Button 3: Perfil
         NavigationDestination(

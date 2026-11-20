@@ -8,6 +8,9 @@ import 'surveys/survey_confirm.dart';
 import 'surveys/survey_done.dart';
 
 import 'screens/login_screen.dart';
+import 'screens/donation_screen.dart';
+import 'auth/login_code.dart';
+import 'auth/privacy_notice.dart';
 
 class Routes {
   static const shell = '/';
@@ -15,6 +18,7 @@ class Routes {
   static const loginCode = '/login/code';
   static const loginError = '/login/error';
   static const privacy = '/privacy';
+  static const donation = '/donation';
   static const surveyIntro = '/survey/intro';
   static const surveyQuestion = '/survey/question';
   static const surveyConfirm = '/survey/confirm';
@@ -28,9 +32,10 @@ class Routes {
 final Map<String, WidgetBuilder> appRoutes = {
   Routes.shell: (context) => const MainShell(),
   Routes.loginEmail: (context) => const LoginScreen(),
-  Routes.loginCode: (context) => const PlaceholderScreen(title: 'Código de verificación'),
+  Routes.loginCode: (context) => const LoginCodeScreen(),
   Routes.loginError: (context) => const PlaceholderScreen(title: 'Correo no válido'),
-  Routes.privacy: (context) => const PlaceholderScreen(title: 'Aviso de privacidad'),
+  Routes.privacy: (context) => const PrivacyNoticeScreen(),
+  Routes.donation: (context) => const DonationScreen(),
   Routes.surveyIntro: (context) => const SurveyIntroScreen(),
   Routes.surveyQuestion: (context) => const SurveyQuestionScreen(),
   Routes.surveyConfirm: (context) => const SurveyConfirmScreen(),
